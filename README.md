@@ -32,8 +32,8 @@ prog2-eco-2026-projetos/
 │   ├── aula-01-revisao-oo/
 │   │   ├── enunciado.md     ← disponibilizado pela professora
 │   │   └── entregas/
-│   │       ├── nome-aluno1/
-│   │       └── nome-aluno2/
+│   │       ├── nome-Estudante1/
+│   │       └── nome-Estudante2/
 │   ├── aula-02-ide-git/
 │   └── ...
 │
