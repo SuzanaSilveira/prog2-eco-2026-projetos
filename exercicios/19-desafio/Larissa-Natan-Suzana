@@ -1,0 +1,635 @@
+//grimorio
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grimório dos Heróis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Formulário */
+        .form-cadastro {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        /* Botões de ação */
+        .botoes-acao {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-salvar {
+            background: #2196F3;
+            flex: 1;
+        }
+
+        .btn-carregar {
+            background: #FF9800;
+            flex: 1;
+        }
+
+        .btn-limpar {
+            background: #f44336;
+            flex: 1;
+        }
+
+        /* Cards */
+        .lista-herois {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-top: 5px solid #ccc;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn-atacar {
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-atacar:hover {
+            background: #f4511e;
+        }
+
+        .resultado-ataque {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .sucesso {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .erro {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .mensagem {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            z-index: 1000;
+        }
+
+        .mensagem-sucesso {
+            background: #4CAF50;
+        }
+
+        .mensagem-erro {
+            background: #f44336;
+        }
+
+        .vazio {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            color: #999;
+        }
+
+        /* Cores das bordas por tipo */
+        .mago {
+            border-top-color: #2196F3;
+        }
+        .guerreiro {
+            border-top-color: #f44336;
+        }
+        .arqueiro {
+            border-top-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📖 Grimório dos Heróis</h1>
+        
+        <!-- Formulário para cadastrar heróis -->
+        <div class="form-cadastro">
+            <form id="formHeroi">
+                <div class="form-group">
+                    <label>Nome do Herói:</label>
+                    <input type="text" id="nome" required placeholder="Ex: Merlin">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tipo:</label>
+                    <select id="tipo">
+                        <option value="Mago">Mago</option>
+                        <option value="Guerreiro">Guerreiro</option>
+                        <option value="Arqueiro">Arqueiro</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nível:</label>
+                    <input type="number" id="nivel" min="1" value="1">
+                </div>
+                
+                <button type="submit" class="btn">Adicionar Herói</button>
+            </form>
+        </div>
+
+        <!-- Botões de salvar e carregar -->
+        <div class="botoes-acao">
+            <button id="btnSalvar" class="btn btn-salvar">💾 Salvar Grimório</button>
+            <button id="btnCarregar" class="btn btn-carregar">📂 Carregar Grimório</button>
+            <button id="btnLimpar" class="btn btn-limpar">🗑️ Limpar Tudo</button>
+        </div>
+
+        <!-- Onde os cards dos heróis vão aparecer -->
+        <div id="listaHerois" class="lista-herois"></div>
+    </div>
+
+    <script>
+        // ==================== CLASSE PRINCIPAL ====================
+        class Heroi {
+            constructor(nome, nivel, vida) {
+                // Verifica se o nome está vazio
+                if (nome === "") {
+                    throw new Error("Nome não pode ficar vazio!");
+                }
+                this.nome = nome;
+                this.nivel = nivel;
+                this.vida = vida;
+            }
+
+            // Método que mostra o status do herói
+            getStatus() {
+                return `${this.nome} | Nível ${this.nivel} | Vida: ${this.vida}`;
+            }
+
+            // Método que será sobrescrito pelas subclasses
+            atacar() {
+                return "Ataque básico!";
+            }
+        }
+
+        // ==================== CLASSE MAGO ====================
+        class Mago extends Heroi {
+            constructor(nome, nivel, vida, mana) {
+                super(nome, nivel, vida);
+                // Se não passar mana, calcula baseado no nível
+                this.mana = mana || (50 + nivel * 10);
+                this.tipo = "Mago";
+            }
+
+            // Método de ataque do mago
+            atacar() {
+                // Verifica se tem mana suficiente
+                if (this.mana < 10) {
+                    throw new Error(`${this.nome} não tem mana suficiente! (Mana: ${this.mana})`);
+                }
+                // Gasta 10 de mana
+                this.mana -= 10;
+                // Calcula o dano baseado no nível
+                let dano = this.nivel * 15;
+                return `${this.nome} lançou uma bola de fogo! Dano: ${dano} | Mana restante: ${this.mana}`;
+            }
+
+            // Sobrescreve o método getStatus para mostrar a mana
+            getStatus() {
+                return `${super.getStatus()} | Mana: ${this.mana}`;
+            }
+        }
+
+        // ==================== CLASSE GUERREIRO ====================
+        class Guerreiro extends Heroi {
+            constructor(nome, nivel, vida, forca) {
+                super(nome, nivel, vida);
+                // Se não passar força, calcula baseado no nível
+                this.forca = forca || (8 + nivel);
+                this.tipo = "Guerreiro";
+            }
+
+            // Método de ataque do guerreiro
+            atacar() {
+                let dano = this.forca * this.nivel;
+                return `${this.nome} atacou com sua espada! Dano: ${dano}`;
+            }
+
+            // Sobrescreve o método getStatus para mostrar a força
+            getStatus() {
+                return `${super.getStatus()} | Força: ${this.forca}`;
+            }
+        }
+
+        // ==================== CLASSE ARQUEIRO ====================
+        class Arqueiro extends Heroi {
+            constructor(nome, nivel, vida, flechas) {
+                super(nome, nivel, vida);
+                // Se não passar flechas, calcula baseado no nível
+                this.flechas = flechas || (20 + nivel * 2);
+                this.tipo = "Arqueiro";
+            }
+
+            // Método de ataque do arqueiro
+            atacar() {
+                // Verifica se tem flechas
+                if (this.flechas <= 0) {
+                    throw new Error(`${this.nome} não tem flechas!`);
+                }
+                // Gasta 1 flecha
+                this.flechas--;
+                let dano = this.nivel * 10;
+                return `${this.nome} disparou uma flecha! Dano: ${dano} | Flechas restantes: ${this.flechas}`;
+            }
+
+            // Sobrescreve o método getStatus para mostrar as flechas
+            getStatus() {
+                return `${super.getStatus()} | Flechas: ${this.flechas}`;
+            }
+        }
+
+        // ==================== FUNÇÃO PARA VERIFICAR SE É COMBATENTE ====================
+        function verificarCombatente(objeto) {
+            // Verifica se o objeto tem o método atacar
+            if (typeof objeto.atacar !== 'function') {
+                throw new Error("Esse herói não sabe atacar!");
+            }
+            // Verifica se o objeto tem o método getStatus
+            if (typeof objeto.getStatus !== 'function') {
+                throw new Error("Esse herói não mostra o status!");
+            }
+            return true;
+        }
+
+        // ==================== OBJETO GRIMÓRIO ====================
+        const grimorio = {
+            // Array que vai guardar todos os heróis
+            heroes: [],
+
+            // Método para adicionar um herói
+            adicionarHeroi(heroi) {
+                try {
+                    // Verifica se o herói pode combater
+                    verificarCombatente(heroi);
+                    // Adiciona no array
+                    this.heroes.push(heroi);
+                    // Mostra mensagem de sucesso
+                    this.mostrarMensagem(`${heroi.nome} foi adicionado!`, "sucesso");
+                    // Atualiza a tela
+                    this.atualizarTela();
+                } catch (erro) {
+                    // Se deu erro, mostra mensagem de erro
+                    this.mostrarMensagem(erro.message, "erro");
+                }
+            },
+
+            // Método para salvar no localStorage
+            salvar() {
+                try {
+                    // Prepara os dados para salvar
+                    let dadosParaSalvar = [];
+                    
+                    for (let i = 0; i < this.heroes.length; i++) {
+                        let heroi = this.heroes[i];
+                        let dadosHeroi = {
+                            tipo: heroi.tipo,
+                            nome: heroi.nome,
+                            nivel: heroi.nivel,
+                            vida: heroi.vida
+                        };
+                        
+                        // Adiciona os atributos específicos de cada classe
+                        if (heroi.mana !== undefined) {
+                            dadosHeroi.mana = heroi.mana;
+                        }
+                        if (heroi.forca !== undefined) {
+                            dadosHeroi.forca = heroi.forca;
+                        }
+                        if (heroi.flechas !== undefined) {
+                            dadosHeroi.flechas = heroi.flechas;
+                        }
+                        
+                        dadosParaSalvar.push(dadosHeroi);
+                    }
+                    
+                    // Salva no localStorage
+                    localStorage.setItem("grimorio", JSON.stringify(dadosParaSalvar));
+                    this.mostrarMensagem("Grimório salvo com sucesso!", "sucesso");
+                } catch (erro) {
+                    this.mostrarMensagem("Erro ao salvar: " + erro.message, "erro");
+                }
+            },
+
+            // Método para carregar do localStorage
+            carregar() {
+                try {
+                    // Pega os dados do localStorage
+                    let dados = localStorage.getItem("grimorio");
+                    
+                    // Se não tem dados salvos
+                    if (!dados) {
+                        this.mostrarMensagem("Nenhum grimório salvo encontrado!", "erro");
+                        return;
+                    }
+                    
+                    // Converte de texto para objeto
+                    let heroesSalvos = JSON.parse(dados);
+                    
+                    // Limpa o array atual
+                    this.heroes = [];
+                    
+                    // Recria cada herói com sua classe correta
+                    for (let i = 0; i < heroesSalvos.length; i++) {
+                        let dadosHeroi = heroesSalvos[i];
+                        let heroi;
+                        
+                        // Cria o herói baseado no tipo
+                        if (dadosHeroi.tipo === "Mago") {
+                            heroi = new Mago(dadosHeroi.nome, dadosHeroi.nivel, dadosHeroi.vida, dadosHeroi.mana);
+                        } else if (dadosHeroi.tipo === "Guerreiro") {
+                            heroi = new Guerreiro(dadosHeroi.nome, dadosHeroi.nivel, dadosHeroi.vida, dadosHeroi.forca);
+                        } else if (dadosHeroi.tipo === "Arqueiro") {
+                            heroi = new Arqueiro(dadosHeroi.nome, dadosHeroi.nivel, dadosHeroi.vida, dadosHeroi.flechas);
+                        }
+                        
+                        if (heroi) {
+                            this.heroes.push(heroi);
+                        }
+                    }
+                    
+                    this.mostrarMensagem(this.heroes.length + " heróis carregados!", "sucesso");
+                    this.atualizarTela();
+                } catch (erro) {
+                    this.mostrarMensagem("Erro ao carregar: " + erro.message, "erro");
+                }
+            },
+
+            // Método para limpar tudo
+            limpar() {
+                if (confirm("Tem certeza que quer limpar tudo?")) {
+                    this.heroes = [];
+                    localStorage.removeItem("grimorio");
+                    this.atualizarTela();
+                    this.mostrarMensagem("Grimório limpo!", "sucesso");
+                }
+            },
+
+            // Método para atacar com um herói
+            atacar(index) {
+                let heroi = this.heroes[index];
+                let resultadoDiv = document.getElementById("resultado-" + index);
+                
+                try {
+                    // Tenta atacar
+                    let resultado = heroi.atacar();
+                    resultadoDiv.innerHTML = "✅ " + resultado;
+                    resultadoDiv.className = "resultado-ataque sucesso";
+                    resultadoDiv.style.display = "block";
+                    
+                    // Atualiza a tela para mostrar os novos valores
+                    this.atualizarTela();
+                    
+                    // Esconde a mensagem depois de 3 segundos
+                    setTimeout(() => {
+                        resultadoDiv.style.display = "none";
+                    }, 3000);
+                } catch (erro) {
+                    // Se deu erro, mostra o erro
+                    resultadoDiv.innerHTML = "❌ " + erro.message;
+                    resultadoDiv.className = "resultado-ataque erro";
+                    resultadoDiv.style.display = "block";
+                    
+                    setTimeout(() => {
+                        resultadoDiv.style.display = "none";
+                    }, 3000);
+                }
+            },
+
+            // Método para mostrar os cards na tela
+            atualizarTela() {
+                let container = document.getElementById("listaHerois");
+                
+                // Se não tem heróis
+                if (this.heroes.length === 0) {
+                    container.innerHTML = '<div class="vazio"><p>✨ Nenhum herói no grimório ✨</p><p>Adicione um herói para começar!</p></div>';
+                    return;
+                }
+                
+                // Cria os cards
+                let html = "";
+                for (let i = 0; i < this.heroes.length; i++) {
+                    let heroi = this.heroes[i];
+                    let classeCard = heroi.tipo.toLowerCase();
+                    
+                    html += `
+                        <div class="card ${classeCard}">
+                            <h3>${heroi.nome}</h3>
+                            <p><strong>⭐ Nível:</strong> ${heroi.nivel}</p>
+                            <p><strong>❤️ Vida:</strong> ${heroi.vida}</p>
+                    `;
+                    
+                    // Mostra os atributos específicos
+                    if (heroi.mana !== undefined) {
+                        html += `<p><strong>🔮 Mana:</strong> ${heroi.mana}</p>`;
+                    }
+                    if (heroi.forca !== undefined) {
+                        html += `<p><strong>⚔️ Força:</strong> ${heroi.forca}</p>`;
+                    }
+                    if (heroi.flechas !== undefined) {
+                        html += `<p><strong>🏹 Flechas:</strong> ${heroi.flechas}</p>`;
+                    }
+                    
+                    html += `
+                            <p><strong>📊 Status:</strong> ${heroi.getStatus()}</p>
+                            <button onclick="grimorio.atacar(${i})" class="btn-atacar">⚔️ ATACAR</button>
+                            <div id="resultado-${i}" class="resultado-ataque"></div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html;
+            },
+
+            // Método para mostrar mensagens na tela
+            mostrarMensagem(texto, tipo) {
+                let mensagemDiv = document.createElement("div");
+                mensagemDiv.className = "mensagem mensagem-" + tipo;
+                mensagemDiv.innerHTML = texto;
+                document.body.appendChild(mensagemDiv);
+                
+                // Remove a mensagem depois de 2 segundos
+                setTimeout(() => {
+                    mensagemDiv.remove();
+                }, 2000);
+            }
+        };
+
+        // ==================== CONFIGURAR EVENTOS DA PÁGINA ====================
+        
+        // Quando a página carregar
+        window.onload = function() {
+            // Pega os elementos do formulário
+            let form = document.getElementById("formHeroi");
+            let btnSalvar = document.getElementById("btnSalvar");
+            let btnCarregar = document.getElementById("btnCarregar");
+            let btnLimpar = document.getElementById("btnLimpar");
+            
+            // Evento de submit do formulário
+            form.onsubmit = function(evento) {
+                evento.preventDefault(); // Impede de recarregar a página
+                
+                // Pega os valores do formulário
+                let nome = document.getElementById("nome").value;
+                let tipo = document.getElementById("tipo").value;
+                let nivel = parseInt(document.getElementById("nivel").value);
+                
+                try {
+                    let heroi;
+                    let vida = 100 + (nivel * 10);
+                    
+                    // Cria o herói baseado no tipo escolhido
+                    if (tipo === "Mago") {
+                        heroi = new Mago(nome, nivel, vida);
+                    } else if (tipo === "Guerreiro") {
+                        heroi = new Guerreiro(nome, nivel, vida);
+                    } else if (tipo === "Arqueiro") {
+                        heroi = new Arqueiro(nome, nivel, vida);
+                    }
+                    
+                    // Adiciona ao grimório
+                    grimorio.adicionarHeroi(heroi);
+                    
+                    // Limpa o formulário
+                    form.reset();
+                    document.getElementById("nivel").value = 1;
+                    
+                } catch (erro) {
+                    grimorio.mostrarMensagem(erro.message, "erro");
+                }
+            };
+            
+            // Botão salvar
+            btnSalvar.onclick = function() {
+                grimorio.salvar();
+            };
+            
+            // Botão carregar
+            btnCarregar.onclick = function() {
+                grimorio.carregar();
+            };
+            
+            // Botão limpar
+            btnLimpar.onclick = function() {
+                grimorio.limpar();
+            };
+            
+            // Verifica se tem dados salvos
+            let dadosSalvos = localStorage.getItem("grimorio");
+            if (dadosSalvos) {
+                // Se tem dados, carrega
+                grimorio.carregar();
+            } else {
+                // Se não tem dados, cria 3 heróis de exemplo
+                let heroisExemplo = [
+                    new Mago("Merlin", 5, 150),
+                    new Guerreiro("Arthur", 4, 140),
+                    new Arqueiro("Robin", 3, 130)
+                ];
+                
+                for (let i = 0; i < heroisExemplo.length; i++) {
+                    grimorio.heroes.push(heroisExemplo[i]);
+                }
+                
+                grimorio.atualizarTela();
+                grimorio.mostrarMensagem("✨ Heróis de exemplo adicionados!", "sucesso");
+            }
+        };
+    </script>
+</body>
+</html>
